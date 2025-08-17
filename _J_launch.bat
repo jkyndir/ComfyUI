@@ -5,6 +5,6 @@
 pushd %~dp0
 @rem activate the env
 call conda activate ComfyUI
-python main.py --auto-launch
+python main.py --auto-launch --preview-method auto
 call conda deactivate
 PAUSE
