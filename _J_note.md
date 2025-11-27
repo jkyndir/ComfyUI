@@ -10,3 +10,8 @@ See this: [docs.comfy.org/installation/manual_install](https://docs.comfy.org/in
 This is needed if ComfyUI is installed via Github. See here: [Installing the ComfyUI Manager](https://docs.comfy.org/development/core-concepts/nodes#comfyui-manager) & [Git clone Comfy-Org/ComfyUI-Manager](https://github.com/Comfy-Org/ComfyUI-Manager?tab=readme-ov-file#installationmethod1-general-installation-method-comfyui-manager-only)
 
 In the `ComfyUI/custom_node`, git clone this repo: [Comfy-Org/ComfyUI-Manager](https://github.com/Comfy-Org/ComfyUI-Manager)
+
+# Troubleshooting
+
+When using FaceID from [ComfyUI_IPAdapter_plus](https://github.com/cubiq/ComfyUI_IPAdapter_plus), plz install `insightface` in the environment manually.
+`pip install insightface`
