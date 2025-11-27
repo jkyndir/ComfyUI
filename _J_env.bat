@@ -20,9 +20,9 @@ if defined env_exists (
     echo Updating environment %env_name%...
     @rem update the env based on the requirements.txt
     echo.
-    call conda activate %env_name%
-    call conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
-    call pip install -r requirements.txt
+    conda activate %env_name%
+    conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
+    pip install -r requirements.txt
     echo.
     echo Environment is now updated!
     PAUSE
@@ -30,10 +30,12 @@ if defined env_exists (
     echo Installing Environment %env_name%...
     @rem create the env based on requirements.txt
     echo.
-    call conda create -n %env_name% python=3.11
-    call conda activate %env_name%
-    call conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
-    call pip install -r requirements.txt
+    echo Initalizing new conda environment %env_name% with Python 3.11...
+    conda create -n %env_name% python=3.11
+    echo Activating environment %env_name%...
+    conda activate %env_name%
+    conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
+    pip install -r requirements.txt
     echo.
     echo Environment is now installed!
     PAUSE
