@@ -13,5 +13,7 @@ In the `ComfyUI/custom_node`, git clone this repo: [Comfy-Org/ComfyUI-Manager](h
 
 # Troubleshooting
 
-When using FaceID from [ComfyUI_IPAdapter_plus](https://github.com/cubiq/ComfyUI_IPAdapter_plus), plz install `insightface` in the environment manually.
-`pip install insightface`
+- When using FaceID from [ComfyUI_IPAdapter_plus](https://github.com/cubiq/ComfyUI_IPAdapter_plus), plz install `insightface` in the environment manually.
+  - Install from the downloaded insighface wheel for the correct python version: [ERROR: Failed building wheel for insightface 773](https://github.com/cubiq/ComfyUI_IPAdapter_plus/issues/773)
+  - And need to install onnxruntime too: `pip install onnxruntime`
+  - <https://github.com/cubiq/ComfyUI_IPAdapter_plus/issues/850>
