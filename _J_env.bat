@@ -21,7 +21,6 @@ if defined env_exists (
     @rem update the env based on the requirements.txt
     echo.
     conda activate %env_name%
-    conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
     pip install -r requirements.txt
     echo.
     echo Environment is now updated!
