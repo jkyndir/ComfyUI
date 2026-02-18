@@ -175,7 +175,7 @@ def get_input_data(inputs, class_def, unique_id, execution_list=None, dynprompt=
                 continue
             obj = cached.outputs[output_index]
             input_data_all[x] = obj
-        elif input_category is not None:
+        elif input_category is not None or (is_v3 and class_def.ACCEPT_ALL_INPUTS):
             input_data_all[x] = [input_data]
 
     if is_v3:
@@ -601,6 +601,7 @@ async def execute(server, dynprompt, caches, current_item, extra_data, executed,
 
         if isinstance(ex, comfy.model_management.OOM_EXCEPTION):
             tips = "This error means you ran out of memory on your GPU.\n\nTIPS: If the workflow worked before you might have accidentally set the batch_size to a large number."
+            logging.info("Memory summary: {}".format(comfy.model_management.debug_memory_summary()))
             logging.error("Got an OOM, unloading all loaded models.")
             comfy.model_management.unload_all_models()
 
