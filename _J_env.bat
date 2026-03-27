@@ -29,11 +29,11 @@ if defined env_exists (
     echo Installing Environment %env_name%...
     @rem create the env based on requirements.txt
     echo.
-    echo Initalizing new conda environment %env_name% with Python 3.11...
-    conda create -n %env_name% python=3.11
+    echo Initalizing new conda environment %env_name% with Python 3.13...
+    conda create -n %env_name% python=3.13
     echo Activating environment %env_name%...
     conda activate %env_name%
-    conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
+    pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu130
     pip install -r requirements.txt
     echo.
     echo Environment is now installed!
