@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from comfy.samplers import CFGGuider, Sampler
     from comfy.sd import CLIP, VAE
     from comfy.sd import StyleModel as StyleModel_
-    from comfy_api.input import VideoInput
+    from comfy_api.input import VideoInput, CurveInput as CurveInput_
 from comfy_api.internal import (_ComfyNodeInternal, _NodeOutputInternal, classproperty, copy_class, first_real_override, is_class,
     prune_dict, shallow_clone_class)
 from comfy_execution.graph_utils import ExecutionBlocker
@@ -73,6 +73,7 @@ class RemoteOptions:
 class NumberDisplay(str, Enum):
     number = "number"
     slider = "slider"
+    gradient_slider = "gradientslider"
 
 
 class ControlAfterGenerate(str, Enum):
@@ -296,13 +297,15 @@ class Float(ComfyTypeIO):
         '''Float input.'''
         def __init__(self, id: str, display_name: str=None, optional=False, tooltip: str=None, lazy: bool=None,
                     default: float=None, min: float=None, max: float=None, step: float=None, round: float=None,
-                    display_mode: NumberDisplay=None, socketless: bool=None, force_input: bool=None, extra_dict=None, raw_link: bool=None, advanced: bool=None):
+                    display_mode: NumberDisplay=None, gradient_stops: list[dict]=None,
+                    socketless: bool=None, force_input: bool=None, extra_dict=None, raw_link: bool=None, advanced: bool=None):
             super().__init__(id, display_name, optional, tooltip, lazy, default, socketless, None, force_input, extra_dict, raw_link, advanced)
             self.min = min
             self.max = max
             self.step = step
             self.round = round
             self.display_mode = display_mode
+            self.gradient_stops = gradient_stops
             self.default: float
 
         def as_dict(self):
@@ -312,6 +315,7 @@ class Float(ComfyTypeIO):
                 "step": self.step,
                 "round": self.round,
                 "display": self.display_mode,
+                "gradient_stops": self.gradient_stops,
             })
 
 @comfytype(io_type="STRING")
@@ -1220,9 +1224,10 @@ class BoundingBox(ComfyTypeIO):
 
     class Input(WidgetInput):
         def __init__(self, id: str, display_name: str=None, optional=False, tooltip: str=None,
-                     socketless: bool=True, default: dict=None, component: str=None):
+                     socketless: bool=True, default: dict=None, component: str=None, force_input: bool=None):
             super().__init__(id, display_name, optional, tooltip, None, default, socketless)
             self.component = component
+            self.force_input = force_input
             if default is None:
                 self.default = {"x": 0, "y": 0, "width": 512, "height": 512}
 
@@ -1230,7 +1235,35 @@ class BoundingBox(ComfyTypeIO):
             d = super().as_dict()
             if self.component:
                 d["component"] = self.component
+            if self.force_input is not None:
+                d["forceInput"] = self.force_input
             return d
+
+
+@comfytype(io_type="CURVE")
+class Curve(ComfyTypeIO):
+    from comfy_api.input import CurvePoint
+    if TYPE_CHECKING:
+        Type = CurveInput_
+
+    class Input(WidgetInput):
+        def __init__(self, id: str, display_name: str=None, optional=False, tooltip: str=None,
+                     socketless: bool=True, default: list[tuple[float, float]]=None, advanced: bool=None):
+            super().__init__(id, display_name, optional, tooltip, None, default, socketless, None, None, None, None, advanced)
+            if default is None:
+                self.default = [(0.0, 0.0), (1.0, 1.0)]
+
+        def as_dict(self):
+            d = super().as_dict()
+            if self.default is not None:
+                d["default"] = {"points": [list(p) for p in self.default], "interpolation": "monotone_cubic"}
+            return d
+
+
+@comfytype(io_type="HISTOGRAM")
+class Histogram(ComfyTypeIO):
+    """A histogram represented as a list of bin counts."""
+    Type = list[int]
 
 
 DYNAMIC_INPUT_LOOKUP: dict[str, Callable[[dict[str, Any], dict[str, Any], tuple[str, dict[str, Any]], str, list[str] | None], None]] = {}
@@ -1339,6 +1372,7 @@ class NodeInfoV1:
     api_node: bool=None
     price_badge: dict | None = None
     search_aliases: list[str]=None
+    essentials_category: str=None
 
 
 @dataclass
@@ -1460,6 +1494,8 @@ class Schema:
     """Flags a node as expandable, allowing NodeOutput to include 'expand' property."""
     accept_all_inputs: bool=False
     """When True, all inputs from the prompt will be passed to the node as kwargs, even if not defined in the schema."""
+    essentials_category: str | None = None
+    """Optional category for the Essentials tab. Path-based like category field (e.g., 'Basic', 'Image Tools/Editing')."""
 
     def validate(self):
         '''Validate the schema:
@@ -1566,6 +1602,7 @@ class Schema:
             python_module=getattr(cls, "RELATIVE_PYTHON_MODULE", "nodes"),
             price_badge=self.price_badge.as_dict(self.inputs) if self.price_badge is not None else None,
             search_aliases=self.search_aliases if self.search_aliases else None,
+            essentials_category=self.essentials_category,
         )
         return info
 
@@ -2215,5 +2252,7 @@ __all__ = [
     "PriceBadgeDepends",
     "PriceBadge",
     "BoundingBox",
+    "Curve",
+    "Histogram",
     "NodeReplace",
 ]
