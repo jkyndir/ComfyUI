@@ -20,7 +20,7 @@ if defined env_exists (
     echo Updating environment %env_name%...
     @rem update the env based on the requirements.txt
     echo.
-    conda activate %env_name%
+    call conda activate %env_name%
     pip install -r requirements.txt
     echo.
     echo Environment is now updated!
@@ -30,9 +30,9 @@ if defined env_exists (
     @rem create the env based on requirements.txt
     echo.
     echo Initalizing new conda environment %env_name% with Python 3.13...
-    conda create -n %env_name% python=3.13
+    call conda create -n %env_name% python=3.13
     echo Activating environment %env_name%...
-    conda activate %env_name%
+    call conda activate %env_name%
     pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu130
     pip install -r requirements.txt
     echo.
