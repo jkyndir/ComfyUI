@@ -13,10 +13,11 @@ In the `ComfyUI/custom_node`, git clone this repo: [Comfy-Org/ComfyUI-Manager](h
 
 # Troubleshooting
 
-- When using FaceID from [ComfyUI_IPAdapter_plus](https://github.com/cubiq/ComfyUI_IPAdapter_plus), plz install `insightface` in the environment manually.
-  - Install from the downloaded insighface wheel for the correct python version: [ERROR: Failed building wheel for insightface 773](https://github.com/cubiq/ComfyUI_IPAdapter_plus/issues/773)
-  - And need to install onnxruntime too: `pip install onnxruntime`
-  - <https://github.com/cubiq/ComfyUI_IPAdapter_plus/issues/850>
-- When using FaceID from [ComfyUI_IPAdapter_plus](https://github.com/cubiq/ComfyUI_IPAdapter_plus), may need to downgrade numpy to version 1.26.
-  - See [IPAdapterInsightFaceLoader numpy.dtype size changed, may indicate binary incompatibility. Expected 96 from C header, got 88 from PyObject](https://github.com/cubiq/ComfyUI_IPAdapter_plus/issues/850)
-  - See [IPAdapterFaceID insightface model is required for FaceID models](https://github.com/Comfy-Org/ComfyUI/issues/6837)
+- FaceID presets from [ComfyUI_IPAdapter_plus](https://github.com/cubiq/ComfyUI_IPAdapter_plus) require `insightface` in the ComfyUI environment. This works (verified 2026-10-22, Python 3.13):
+  - `conda activate ComfyUI`
+  - `python -m pip install insightface`
+  - `insightface 2.x` ships a universal wheel, so no C++ build tools or manually downloaded wheel are needed.
+  - It installs `onnx`/`onnxruntime` automatically. Keep the node's `provider` on CPU unless `onnxruntime-gpu` is installed.
+  - Do not downgrade NumPy to 1.26: it has no Python 3.13 wheels, and `insightface 2.x` works with NumPy 2.x. That was a workaround for older wheels; see [#850](https://github.com/cubiq/ComfyUI_IPAdapter_plus/issues/850) and [#6837](https://github.com/Comfy-Org/ComfyUI/issues/6837).
+  - Legacy fallback: prebuilt `0.7.3` wheels for each Python version are available at [Gourieff/Assets](https://github.com/Gourieff/Assets/tree/main/Insightface), see [#773](https://github.com/cubiq/ComfyUI_IPAdapter_plus/issues/773). Only needed if pinning `0.7.3`.
+- `_J_env.bat` recreates the environment from `requirements.txt`, which does not include `insightface`; reinstall it after recreating the environment.
